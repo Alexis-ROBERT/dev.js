@@ -20,8 +20,22 @@ export default class CommandLineInterfaceRegister<C extends CommandLineInterface
         private _argv: string[] = argv;
 
         private _cLIValidate(cli: CommandLineInterface): boolean {
+                if(!RegExp().test(cli.name())) {
+                        return false;
+                }
+
+                cli.option().forEach((o) => {
+                        if(!RegExp().test(o.name)) {
+                                return false;
+                        }
+
+
+                })
+
                 return true;
         }
+
+        private _isValidate: boolean = false;
 
         private _processCommand(cli: CommandLineInterface): Promise<CommandLineInterface> {
                 return new Promise<CommandLineInterface>((resolve, reject) => {
@@ -65,7 +79,10 @@ export default class CommandLineInterfaceRegister<C extends CommandLineInterface
                 if (command instanceof CommandLineInterface) {
                         if (Array.isArray(command)) {
                                 command.forEach((c) => {
+                                        this._isValidate = this._cLIValidate(c);
                                         this.add(c);
+
+                                        delete this._isValidate;
                                 });
                         }
 
@@ -103,12 +120,14 @@ export default class CommandLineInterfaceRegister<C extends CommandLineInterface
                 this._cliInfos.description = description;
         }
 
-        public version(version: number): void {}
+        public version(version: number): void {
+                this._version = version;
+        }
 
         public add(cli: CommandLineInterface): this {
                 this._commandAccepted.forEach((c, i, a) => {
-                        if (!this._cLIValidate(cli)) {
-                                
+                        if(!this._isValidate) {
+                                if(!this._cLIValidate(cli)) throw new Error('ssss') 
                         }
 
                         if (cli.name() === c.name()) {
