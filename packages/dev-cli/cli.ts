@@ -57,30 +57,34 @@ export default class CommandLineInterface {
                 return this;
         }
 
-        public exec(callBack?: () => any): void {
+        public exec(callBack?: (cli: this) => any): void {
                 if (this._ok) {
-                        
+                        this._optionExec.forEach((e) =>
+                                this._optionContruct.forEach((o) => {
+                                        if (e === o.name) o.action(this);
+                                })
+                        );
+
+                        callBack(this);
                 }
         }
 
         public isOptionProcess(name: string): boolean {
-                if (name.startsWith('-') || name.startsWith('--')) {
-                }
-
                 for (let i = 0; i <= this._optionContruct.length; i++) {
                         if (name !== this._optionContruct[i].name) continue;
+                        return true;
                 }
+
+                return false;
         }
 
-        public option(name?: string, description?: string): IOptionContruct[] {
+        public option(name?: string, description?: string, action?: (cli: this) => any): IOptionContruct[] {
                 if (name !== undefined) {
                         if (RegExp().test()) {
-                                if (name.startsWith('-')) {
-                                }
-
                                 this._optionContruct.push({
                                         name: name,
                                         description: description,
+                                        action: action,
                                 });
                         }
                 }
