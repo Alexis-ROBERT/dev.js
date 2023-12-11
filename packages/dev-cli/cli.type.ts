@@ -1,7 +1,11 @@
+import CommandLineInterface from "./cli";
+
 export interface IOptionContruct {
         name: string;
 
         description?: string;
+
+        action?: (cli: CommandLineInterface) => any;
 }
 
 export interface IResultOK {
