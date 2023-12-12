@@ -1,14 +1,14 @@
 import { argv } from 'node:process';
-import CommandLineInterface from './cli';
+import CommandLineInterfaceConstruct from './cli.construct';
 import { ICLIInfos, IResultOK } from './cli.type';
 
 /**
  * This class is util for register of commands in terminal process
  */
-export default class CommandLineInterfaceRegister<C extends CommandLineInterface> {
-        private _commandAccepted: CommandLineInterface[] = [];
+export default class CommandLineInterfaceRegister<C extends CommandLineInterfaceConstruct> {
+        private _commandAccepted: CommandLineInterfaceConstruct[] = [];
 
-        private _cliInfos: ICLIInfos = {
+        private _nameCli: ICLIInfos = {
                 name: '',
                 description: '',
         };
@@ -21,8 +21,8 @@ export default class CommandLineInterfaceRegister<C extends CommandLineInterface
 
         private _isValidate: boolean = false;
 
-        private _processCommand(cli: CommandLineInterface): Promise<CommandLineInterface> {
-                return new Promise<CommandLineInterface>((resolve, reject) => {
+        private _processCommand(cli: CommandLineInterfaceConstruct): Promise<CommandLineInterfaceConstruct> {
+                return new Promise<CommandLineInterfaceConstruct>((resolve, reject) => {
                         for (let i = 1; i <= argv.length; i++)
                                 switch (argv[i]) {
                                         case cli.name():
@@ -59,15 +59,15 @@ export default class CommandLineInterfaceRegister<C extends CommandLineInterface
                 });
         }
 
-        private _addValidate(cli: CommandLineInterface): void {
+        private _addValidate(cli: CommandLineInterfaceConstruct): void {
                 this._isValidate = cli.cLIValidate(cli);
                 this.add(cli);
 
                 delete this._isValidate;
         }
 
-        public constructor(command: CommandLineInterface[] | C[]) {
-                if (command instanceof CommandLineInterface) {
+        public constructor(command: CommandLineInterfaceConstruct[] | C[]) {
+                if (command instanceof CommandLineInterfaceConstruct) {
                         if (Array.isArray(command)) {
                                 command.forEach((c) => {
                                         this._addValidate(c);
@@ -104,15 +104,15 @@ export default class CommandLineInterfaceRegister<C extends CommandLineInterface
         }
 
         public nameCLI(name: string, description: string): void {
-                this._cliInfos.name = name;
-                this._cliInfos.description = description;
+                this._nameCli.name = name;
+                this._nameCli.description = description;
         }
 
         public version(version: number): void {
                 this._version = version;
         }
 
-        public add(cli: CommandLineInterface): this {
+        public add(cli: CommandLineInterfaceConstruct): this {
                 this._commandAccepted.forEach((c, i, a) => {
                         if (!this._isValidate) {
                                 if (!c.cLIValidate(cli)) throw new Error('ssss');
@@ -124,15 +124,14 @@ export default class CommandLineInterfaceRegister<C extends CommandLineInterface
 
                                 return;
                         }
-
-                        a.push(cli);
                 });
 
+                this._commandAccepted.push(cli);
                 return this;
         }
 
-        public delete(name: string | CommandLineInterface): this {
-                const deleteCommand = (name: string, value: string, index: number, array: CommandLineInterface[]): boolean => {
+        public delete(name: string | CommandLineInterfaceConstruct): this {
+                const deleteCommand = (name: string, value: string, index: number, array: CommandLineInterfaceConstruct[]): boolean => {
                         if (name === value) {
                                 array.slice(index, 1);
                                 return true;
@@ -149,7 +148,7 @@ export default class CommandLineInterfaceRegister<C extends CommandLineInterface
                         });
                 };
 
-                if (name instanceof CommandLineInterface) {
+                if (name instanceof CommandLineInterfaceConstruct) {
                         commandSearch(name.name());
                         return this;
                 }
