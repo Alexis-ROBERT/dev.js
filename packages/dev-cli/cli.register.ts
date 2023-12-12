@@ -19,22 +19,6 @@ export default class CommandLineInterfaceRegister<C extends CommandLineInterface
 
         private _argv: string[] = argv;
 
-        private _cLIValidate(cli: CommandLineInterface): boolean {
-                if(!RegExp().test(cli.name())) {
-                        return false;
-                }
-
-                cli.option().forEach((o) => {
-                        if(!RegExp().test(o.name)) {
-                                return false;
-                        }
-
-
-                })
-
-                return true;
-        }
-
         private _isValidate: boolean = false;
 
         private _processCommand(cli: CommandLineInterface): Promise<CommandLineInterface> {
@@ -75,19 +59,23 @@ export default class CommandLineInterfaceRegister<C extends CommandLineInterface
                 });
         }
 
+        private _addValidate(cli: CommandLineInterface): void {
+                this._isValidate = cli.cLIValidate(cli);
+                this.add(cli);
+
+                delete this._isValidate;
+        }
+
         public constructor(command: CommandLineInterface[] | C[]) {
                 if (command instanceof CommandLineInterface) {
                         if (Array.isArray(command)) {
                                 command.forEach((c) => {
-                                        this._isValidate = this._cLIValidate(c);
-                                        this.add(c);
-
-                                        delete this._isValidate;
+                                        this._addValidate(c);
                                 });
                         }
 
                         Object.entries(command).forEach((c) => {
-                                this.add(c[1]);
+                                this._addValidate(c[1]);
                         });
 
                         let ok: boolean | IResultOK;
@@ -126,8 +114,8 @@ export default class CommandLineInterfaceRegister<C extends CommandLineInterface
 
         public add(cli: CommandLineInterface): this {
                 this._commandAccepted.forEach((c, i, a) => {
-                        if(!this._isValidate) {
-                                if(!this._cLIValidate(cli)) throw new Error('ssss') 
+                        if (!this._isValidate) {
+                                if (!c.cLIValidate(cli)) throw new Error('ssss');
                         }
 
                         if (cli.name() === c.name()) {
@@ -143,7 +131,31 @@ export default class CommandLineInterfaceRegister<C extends CommandLineInterface
                 return this;
         }
 
-        public delete(name: string): void {}
+        public delete(name: string | CommandLineInterface): this {
+                const deleteCommand = (name: string, value: string, index: number, array: CommandLineInterface[]): boolean => {
+                        if (name === value) {
+                                array.slice(index, 1);
+                                return true;
+                        }
+
+                        return false;
+                };
+
+                const commandSearch = (name: string): void => {
+                        this._commandAccepted.forEach((c, i, a) => {
+                                if (!deleteCommand(name, c.name(), i, a)) {
+                                        throw new Error('Hello World');
+                                }
+                        });
+                };
+
+                if (name instanceof CommandLineInterface) {
+                        commandSearch(name.name());
+                        return this;
+                }
+
+                commandSearch(name);
+        }
 
         public help(): void {}
 }
