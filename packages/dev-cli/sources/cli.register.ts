@@ -66,7 +66,7 @@ export default class CommandLineInterfaceRegister<C extends CommandLineInterface
                 delete this._isValidate;
         }
 
-        public constructor(command: CommandLineInterfaceConstructor[] | C[]) {
+        public constructor(command: CommandLineInterfaceConstructor[] | C[] | C) {
                 if (command instanceof CommandLineInterfaceConstructor) {
                         if (Array.isArray(command)) {
                                 command.forEach((c) => {

@@ -1,7 +1,5 @@
 'use client'
 
-export * from './cli.register';
+import CommandLineInterfaceRegister from './sources/cli.register';
 
-export function DevCommandLineInterface(): void {
-
-}
+export * from './sources/cli.register';
