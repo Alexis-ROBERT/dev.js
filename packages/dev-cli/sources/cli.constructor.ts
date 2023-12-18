@@ -1,10 +1,10 @@
-import { IOptionContruct, IResultOK } from './cli.type';
+import { IOptionCLI, IOptionContruct, IResultOK } from './cli.type';
 
 /**
  *
  */
-export default class CommandLineInterfaceConstructor {
-        private _optionContruct: IOptionContruct[] = [];
+export default class CommandLineInterfaceConstructor<T = {}> {
+        private _optionContruct: IOptionContruct<CommandLineInterfaceConstructor>[] = [];
         private _optionExec: string[] = [];
 
         private _ok: boolean = false;
@@ -13,12 +13,14 @@ export default class CommandLineInterfaceConstructor {
         private _stepContruct: any[] = [];
 
         public constructor(private _name: string) {
-                this._ok ?? false;
+                this._ok = false;
         }
 
         public name(): string {
                 return this._name;
         }
+
+        public type: T;
 
         public ok(isOk?: boolean, reason?: string): IResultOK | boolean {
                 if (isOk === undefined) {
@@ -38,7 +40,9 @@ export default class CommandLineInterfaceConstructor {
                         return this._ok;
                 }
 
-                this._reason = reason;
+                if (!!reason) {
+                        this._reason = reason;
+                }
 
                 return {
                         isOk: this._ok,
@@ -54,7 +58,7 @@ export default class CommandLineInterfaceConstructor {
         public call(): any | any[] {
                 this._stepContruct.forEach((step) => {
                         step(this);
-                })
+                });
         }
 
         public pushOptionForExecute(name: string): this {
@@ -63,20 +67,22 @@ export default class CommandLineInterfaceConstructor {
         }
 
         public cLIValidate(cli: CommandLineInterfaceConstructor): boolean {
-            if (!RegExp(/^[a-zA-Z0-9_-]+$/).test(cli.name())) {
-                    return false;
-            }
+                if (!RegExp(/^[a-zA-Z0-9_-]+$/).test(cli.name())) {
+                        return false;
+                }
 
-            return true;
-    }
+                return true;
+        }
 
         public exec(callBack?: (cli: this) => any): void {
                 if (this._ok) {
-                        callBack(this);
+                        if (!!callBack) {
+                                callBack(this);
+                        }
 
                         this._optionExec.forEach((e) =>
                                 this._optionContruct.forEach((o) => {
-                                        if (e === o.name) o.action(this);
+                                        if (e === o.name && !!o.action) o.action(this);
                                 })
                         );
                 }
@@ -91,9 +97,9 @@ export default class CommandLineInterfaceConstructor {
                 return false;
         }
 
-        public option(name?: string, description?: string, action?: (cli: this) => any): IOptionContruct[] {
+        public option(name?: string, description?: string, action?: (cli: CommandLineInterfaceConstructor<T>) => any): IOptionContruct<CommandLineInterfaceConstructor<T>, T>[] {
                 if (name !== undefined) {
-                        if (RegExp(/^[a-zA-Z0-9_]+$/).test(name)) { 
+                        if (RegExp(/^[a-zA-Z0-9_]+$/).test(name)) {
                                 this._optionContruct.push({
                                         name: name,
                                         description: description,
