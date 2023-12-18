@@ -15,9 +15,11 @@ import EmberServer from '../server/ember/cli';
 import PolymerServer from '../server/polymer/cli';
 import ReactServer from '../server/react/cli';
 import VueServer from '../server/vue/cli';
+import createProjectConfig from '../../dev-create/sources/create.project.config';
+import { AllProjectType, IsNotProjectType } from '../../dev-create/sources/create.type';
 
-export default function commandLineInterfaceConfig(): CommandLineInterfaceConstructor[] {
-        const constructCommand: CommandLineInterfaceConstructor[] = [
+export default function commandLineInterfaceConfig(): CommandLineInterfaceConstructor<IsNotProjectType | AllProjectType>[] {
+        const constructCommand: CommandLineInterfaceConstructor<IsNotProjectType | AllProjectType>[] = [
                 /* Create project */
                 new CreateProject(),
 
@@ -40,11 +42,29 @@ export default function commandLineInterfaceConfig(): CommandLineInterfaceConstr
                 new EmberServer(),
                 new PolymerServer(),
                 new ReactServer(),
-                new VueServer()
-
+                new VueServer(),
         ];
 
-        return constructCommand.map<CommandLineInterfaceConstructor>((c) => {
-                return c;
-        });
+        let projectConfig = createProjectConfig().projectType;
+
+        return constructCommand.map<CommandLineInterfaceConstructor<IsNotProjectType | AllProjectType>>((c) => {
+                if (typeof projectConfig !== 'boolean') {
+                        projectConfig = projectConfig as AllProjectType;
+
+                        if (c.type === undefined) {
+                                throw new Error('Hello World') 
+                        }
+
+                        switch (projectConfig) {
+                                case c.type:
+                                        return c;
+                        }
+                }
+
+                projectConfig = projectConfig as IsNotProjectType;
+
+                if (projectConfig) {
+                        return c;
+                }
+        })
 }
