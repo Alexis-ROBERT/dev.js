@@ -1,0 +1,31 @@
+{
+    "compilerOptions": {
+        "target": "esnext",
+        "module": "CommonJS",
+        "outDir": "build",
+        "declarationDir": "build/declaration",
+        "moduleResolution": "node",
+        "sourceMap": true,
+        "declaration": true,
+        "jsx": "react",
+        "strictNullChecks": true,
+        "noUnusedLocals": true,
+        "noUnusedParameters": false,
+        "allowSyntheticDefaultImports": true,
+        "resolveJsonModule": true,
+        "esModuleInterop": true,
+        "downlevelIteration": true,
+        "experimentalDecorators": true,
+        "skipLibCheck": true,
+        "noErrorTruncation": true,
+        "noImplicitAny": false,
+        "lib": [
+          "esnext.promise",
+          "esnext",
+          "dom"
+        ],
+      },
+      "include": [
+        "package",
+      ]
+}
