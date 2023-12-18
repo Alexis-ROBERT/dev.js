@@ -1,11 +1,12 @@
+import CommandLineInterfaceConstructor from "./cli.constructor";
 import CommandLineInterface from "./cli.constructor";
 
-export interface IOptionContruct {
+export interface IOptionContruct<C extends CommandLineInterfaceConstructor> {
         name: string;
 
         description?: string;
 
-        action?: (cli: CommandLineInterface) => any;
+        action?: (cli: C) => any;
 }
 
 export interface IResultOK {
@@ -18,4 +19,8 @@ export interface ICLIInfos {
         name: string;
 
         description?: string;
+}
+
+export interface IOptionCLI<T = {}> {
+        type: T;
 }
