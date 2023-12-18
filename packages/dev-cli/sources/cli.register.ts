@@ -154,6 +154,7 @@ export default class CommandLineInterfaceRegister<C extends CommandLineInterface
                 }
 
                 commandSearch(name);
+                return this;
         }
 
         public help(): void {}
